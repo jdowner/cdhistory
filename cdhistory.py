@@ -32,11 +32,16 @@ def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--add', action='store_true')
     parser.add_argument('-l', '--list', action='store_true')
+    parser.add_argument('-r', '--reset', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
     parser.add_argument('paths', nargs=argparse.REMAINDER)
 
     args = parser.parse_args(argv)
+
+    if args.reset:
+        if os.path.isfile(args.file):
+            os.remove(args.file)
 
     if args.add:
         history = read_history(args.file)

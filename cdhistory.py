@@ -26,6 +26,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('-a', '--add', action='store_true')
     parser.add_argument('-l', '--list', action='store_true')
     parser.add_argument('-c', '--clear', action='store_true')
+    parser.add_argument('-r', '--refresh', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
     parser.add_argument('paths', nargs=argparse.REMAINDER)
@@ -44,6 +45,12 @@ def main(argv=sys.argv[1:]):
                 history[rpath] += 1
 
         write_history(args.file, history)
+
+    elif args.refresh:
+        history = read_history(args.file)
+        remove = [p for p in history if not os.path.exists(p)]
+        for path in remove:
+            del history[path]
 
         write_history(args.file, history)
 

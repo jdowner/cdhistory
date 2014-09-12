@@ -10,12 +10,10 @@ add the following snippet to your .bash_profile or wherever you keep such
 things,
 
   function __cd(){
-      cd $1 && cdhistory $1
+      cdhistory $1
+      cd $1
   }
 
   alias cd='__cd'
 
-This replaces the existing 'cd' function in bash with a wrapped version. Note,
-that the new directory is only passed to cdhistory is the cd function succeeds;
-so accidentally typing cd snrgk does not mean that a non-existant directory
-witll be add to the .cdhistory file.
+This replaces the existing 'cd' function in bash with a wrapped version.

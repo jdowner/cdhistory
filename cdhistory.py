@@ -21,13 +21,6 @@ def write_history(filename, history):
         for path in history:
             fp.write('%d %s\n' % (history[path], path))
 
-def is_valid_path(path):
-    if path.startswith('..'):
-        return False
-    if path == '-':
-        return False
-    return True
-
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--add', action='store_true')
@@ -46,8 +39,11 @@ def main(argv=sys.argv[1:]):
     if args.add:
         history = read_history(args.file)
         for path in args.paths:
-            if is_valid_path(path):
-                history[path] += 1
+            rpath = os.path.realpath(path)
+            if os.path.exists(rpath):
+                history[rpath] += 1
+
+        write_history(args.file, history)
 
         write_history(args.file, history)
 

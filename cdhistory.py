@@ -2,8 +2,16 @@
 
 import argparse
 import collections
+import contextlib
 import os
 import sys
+
+@contextlib.contextmanager
+def open_history(filename):
+    history = read_history(filename)
+    yield history
+    write_history(filename, history)
+
 
 def read_history(filename):
     history = collections.Counter()
@@ -38,21 +46,18 @@ def main(argv=sys.argv[1:]):
             os.remove(args.file)
 
     if args.add:
-        history = read_history(args.file)
-        for path in args.paths:
-            rpath = os.path.realpath(path)
-            if os.path.exists(rpath):
-                history[rpath] += 1
-
-        write_history(args.file, history)
+        with open_history(args.file) as history:
+            for path in args.paths:
+                rpath = os.path.realpath(path)
+                if os.path.exists(rpath):
+                    history[rpath] += 1
 
     elif args.refresh:
-        history = read_history(args.file)
-        remove = [p for p in history if not os.path.exists(p)]
-        for path in remove:
-            del history[path]
+        with open_history(args.file) as history:
+            remove = [p for p in history if not os.path.exists(p)]
+            for path in remove:
+                del history[path]
 
-        write_history(args.file, history)
 
     elif args.list:
         history = read_history(args.file)

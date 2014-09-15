@@ -1,7 +1,7 @@
 This script is used to record the frequency of visits to particular directories
-through using the 'cd' function. The point is to use this information is to use
-this information to provide context aware tab completion from the command line
-based upon the most commonly visited directories.
+through using the 'cd' function. The point is to use this information to provide
+context aware tab completion from the command line based upon the most commonly
+visited directories.
 
 To incorporate this functionality, first make sure that cdhistory.py is
 available on your path and is executable. I like to create a symlink from the

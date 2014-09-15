@@ -3,8 +3,12 @@
 import argparse
 import collections
 import contextlib
+import logging
 import os
 import sys
+
+logger = logging.getLogger(__name__)
+
 
 @contextlib.contextmanager
 def open_history(filename):
@@ -24,22 +28,29 @@ def read_history(filename):
 
     return history
 
+
 def write_history(filename, history):
     with open(filename, 'w') as fp:
         for path in history:
             fp.write('%d %s\n' % (history[path], path))
 
 def main(argv=sys.argv[1:]):
+    logging.basicConfig(format='%(asctime)-15s %(message)s')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--add', action='store_true')
     parser.add_argument('-l', '--list', action='store_true')
     parser.add_argument('-c', '--clear', action='store_true')
     parser.add_argument('-r', '--refresh', action='store_true')
+    parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
     parser.add_argument('paths', nargs=argparse.REMAINDER)
 
     args = parser.parse_args(argv)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG if args.verbose else logging.INFO)
 
     if args.clear:
         if os.path.isfile(args.file):

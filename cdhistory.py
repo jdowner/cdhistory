@@ -30,9 +30,12 @@ def read_history(filename):
 
 
 def write_history(filename, history):
+    data = sorted([(history[p], p) for p in history], reverse=True)
     with open(filename, 'w') as fp:
-        for path in history:
-            fp.write('%d %s\n' % (history[path], path))
+        for count, path in data:
+            fp.write('%d %s\n' % (count, path))
+
+
 
 def main(argv=sys.argv[1:]):
     logging.basicConfig(format='%(asctime)-15s %(message)s')
@@ -72,7 +75,6 @@ def main(argv=sys.argv[1:]):
 
     elif args.list:
         history = read_history(args.file)
-        paths = sorted(history.keys(), key=lambda k: history[k])
         for path in paths:
             print(path)
 

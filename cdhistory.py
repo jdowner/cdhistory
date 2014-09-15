@@ -7,6 +7,8 @@ import logging
 import os
 import sys
 
+import fuzzywuzzy.fuzz as fuzz
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,6 +38,31 @@ def write_history(filename, history):
             fp.write('%d %s\n' % (count, path))
 
 
+def rank_paths(history, path, threshold=40):
+    # Match the path assuming that it is an absolute path
+    abs_results = [(fuzz.ratio(k, path), k) for k in history]
+    if logger.getEffectiveLevel() <= logging.DEBUG:
+        abs_results.sort(reverse=True)
+        for result in abs_results:
+            logger.debug('{} {}'.format(*result))
+
+    # Match the path assuming that it is relative to the current working
+    # directory
+    augmented = os.path.join(os.getcwd(), path)
+    rel_results = [(fuzz.ratio(k, augmented), k) for k in history]
+
+    # Combine the results
+    results = abs_results + rel_results
+    results.sort(reverse=True)
+
+    # Filter out low scoring results and duplicates
+    paths = []
+    for score, path in results:
+        if score > threshold and path not in paths:
+            paths.append(path)
+
+    return paths
+
 
 def main(argv=sys.argv[1:]):
     logging.basicConfig(format='%(asctime)-15s %(message)s')
@@ -45,6 +72,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('-l', '--list', action='store_true')
     parser.add_argument('-c', '--clear', action='store_true')
     parser.add_argument('-r', '--refresh', action='store_true')
+    parser.add_argument('-m', '--match', action='store_true')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
@@ -72,6 +100,11 @@ def main(argv=sys.argv[1:]):
             for path in remove:
                 del history[path]
 
+    elif args.match:
+        with open_history(args.file) as history:
+            path = args.paths[0] if args.paths else os.getcwd()
+            for result in rank_paths(history, path):
+                print(result)
 
     elif args.list:
         history = read_history(args.file)

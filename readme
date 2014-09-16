@@ -9,11 +9,20 @@ version in the repo to home/jdowner/bin, where it is called 'cdhistory'. Then
 add the following snippet to your .bash_profile or wherever you keep such
 things,
 
-  function __cd(){
-      cdhistory -a $1
-      cd $1
-  }
+    function cd(){
+      if [[ ${1:0:1} = ":" ]]; then
+        builtin cd $(cdhistory -n 1 -m ${1:1})
+      else
+        cdhistory -a $1
+        builtin cd $1
+      fi
+    }
 
-  alias cd='__cd'
+This replaces the existing 'cd' function in bash with a wrapped version. The
+function behaves like the builtin cd command normally, but records the
+directories that are visited. However, if you prepend the first argument to 'cd'
+with a colon it will go to the best match using cdhistory, e.g.
 
-This replaces the existing 'cd' function in bash with a wrapped version.
+  cd :repos
+
+will 'cd' to the path the best matchines the string 'repos'.

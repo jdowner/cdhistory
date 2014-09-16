@@ -43,7 +43,7 @@ def rank_paths(history, test, limit=10):
         token_score = max(fuzz.ratio(token, test) for token in path.split('/'))
         total_score = fuzz.ratio(path, test)
         freq_score = history[path]
-        return (token_score, total_score, freq_score, path)
+        return ((token_score, total_score, freq_score), path)
 
     results = sorted([score(path) for path in history], reverse=True)
 
@@ -51,7 +51,7 @@ def rank_paths(history, test, limit=10):
         for result in results:
             logger.debug(result)
 
-    return [path for _, _, _, path in results[:limit]]
+    return [path for _, path in results[:limit]]
 
 
 def main(argv=sys.argv[1:]):
@@ -63,6 +63,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('-c', '--clear', action='store_true')
     parser.add_argument('-r', '--refresh', action='store_true')
     parser.add_argument('-m', '--match', action='store_true')
+    parser.add_argument('-n', '--max-results', type=int, default=10)
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
@@ -93,7 +94,7 @@ def main(argv=sys.argv[1:]):
     elif args.match:
         with open_history(args.file) as history:
             path = args.paths[0] if args.paths else os.getcwd()
-            for result in rank_paths(history, path):
+            for result in rank_paths(history, path, limit=args.max_results):
                 print(result)
 
     elif args.list:

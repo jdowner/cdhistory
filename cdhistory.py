@@ -108,7 +108,7 @@ def main(argv=sys.argv[1:]):
 
     elif args.list:
         history = read_history(args.file)
-        for path in paths:
+        for path in history:
             print(path)
 
 

@@ -38,30 +38,20 @@ def write_history(filename, history):
             fp.write('%d %s\n' % (count, path))
 
 
-def rank_paths(history, path, threshold=40):
-    # Match the path assuming that it is an absolute path
-    abs_results = [(fuzz.ratio(k, path), k) for k in history]
+def rank_paths(history, test, limit=10):
+    def score(path):
+        token_score = max(fuzz.ratio(token, test) for token in path.split('/'))
+        total_score = fuzz.ratio(path, test)
+        freq_score = history[path]
+        return (token_score, total_score, freq_score, path)
+
+    results = sorted([score(path) for path in history], reverse=True)
+
     if logger.getEffectiveLevel() <= logging.DEBUG:
-        abs_results.sort(reverse=True)
-        for result in abs_results:
-            logger.debug('{} {}'.format(*result))
+        for result in results:
+            logger.debug(result)
 
-    # Match the path assuming that it is relative to the current working
-    # directory
-    augmented = os.path.join(os.getcwd(), path)
-    rel_results = [(fuzz.ratio(k, augmented), k) for k in history]
-
-    # Combine the results
-    results = abs_results + rel_results
-    results.sort(reverse=True)
-
-    # Filter out low scoring results and duplicates
-    paths = []
-    for score, path in results:
-        if score > threshold and path not in paths:
-            paths.append(path)
-
-    return paths
+    return [path for _, _, _, path in results[:limit]]
 
 
 def main(argv=sys.argv[1:]):

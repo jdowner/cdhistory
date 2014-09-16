@@ -63,6 +63,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('-c', '--clear', action='store_true')
     parser.add_argument('-r', '--refresh', action='store_true')
     parser.add_argument('-m', '--match', action='store_true')
+    parser.add_argument('-n', '--max-results', type=int, default=10)
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-f', '--file',
             default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
@@ -93,7 +94,7 @@ def main(argv=sys.argv[1:]):
     elif args.match:
         with open_history(args.file) as history:
             path = args.paths[0] if args.paths else os.getcwd()
-            for result in rank_paths(history, path):
+            for result in rank_paths(history, path, limit=args.max_results):
                 print(result)
 
     elif args.list:

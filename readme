@@ -1,7 +1,8 @@
+## CDHISTORY
+
 This script is used to record the frequency of visits to particular directories
-through using the 'cd' function. The point is to use this information to provide
-context aware tab completion from the command line based upon the most commonly
-visited directories.
+through using the 'cd' function. The goal is to use this information to provide
+a way to quickly navigate to commonly visited directories.
 
 To incorporate this functionality, first make sure that cdhistory.py is
 available on your path and is executable. I like to create a symlink from the
@@ -25,4 +26,10 @@ with a colon it will go to the best match using cdhistory, e.g.
 
   cd :repos
 
-will 'cd' to the path the best matchines the string 'repos'.
+will 'cd' to the path that best matches the string 'repos'. In effect, this is
+like creating aliases for commonly visited directories.
+
+
+## DEPENDENCIES
+
+- fuzzywuzzy (https://github.com/seatgeek/fuzzywuzzy)

@@ -108,7 +108,8 @@ def main(argv=sys.argv[1:]):
 
     elif args.list:
         history = read_history(args.file)
-        for path in history:
+        paths = sorted(history.keys(), key=lambda p: history[p], reverse=True)
+        for path in paths:
             print(path)
 
 

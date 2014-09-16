@@ -43,7 +43,7 @@ def rank_paths(history, test, limit=10):
         token_score = max(fuzz.ratio(token, test) for token in path.split('/'))
         total_score = fuzz.ratio(path, test)
         freq_score = history[path]
-        return (token_score, total_score, freq_score, path)
+        return ((token_score, total_score, freq_score), path)
 
     results = sorted([score(path) for path in history], reverse=True)
 
@@ -51,7 +51,7 @@ def rank_paths(history, test, limit=10):
         for result in results:
             logger.debug(result)
 
-    return [path for _, _, _, path in results[:limit]]
+    return [path for _, path in results[:limit]]
 
 
 def main(argv=sys.argv[1:]):

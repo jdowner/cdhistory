@@ -3,11 +3,11 @@
 import argparse
 import collections
 import contextlib
+import heapq
 import logging
 import os
+import re
 import sys
-
-import fuzzywuzzy.fuzz as fuzz
 
 logger = logging.getLogger(__name__)
 
@@ -39,19 +39,25 @@ def write_history(filename, history):
 
 
 def rank_paths(history, test, limit=10):
-    def score(path):
-        token_score = max(fuzz.ratio(token, test) for token in path.split('/'))
-        total_score = fuzz.ratio(path, test)
-        freq_score = history[path]
-        return ((token_score, total_score, freq_score), path)
+    pattern = re.compile('(?=(' + '.*?'.join(re.escape(c) for c in test) + '))')
 
-    results = sorted([score(path) for path in history], reverse=True)
+    def score(match, path):
+        length = match.end(1) - match.start(1)
+        if length == 0:
+            return (0, 0)
 
-    if logger.getEffectiveLevel() <= logging.DEBUG:
-        for result in results:
-            logger.debug(result)
+        lscore = 1.0 / length
+        fscore = history[path]
+        return (lscore, fscore)
 
-    return [path for _, path in results[:limit]]
+    results = []
+    for path in history:
+        for match in pattern.finditer(path):
+            value = score(match, path)
+            results.append((value, path))
+            logger.debug((value, path))
+
+    return [path for _, path in heapq.nlargest(limit, results)]
 
 
 def main(argv=sys.argv[1:]):

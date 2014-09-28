@@ -3,11 +3,11 @@
 import argparse
 import collections
 import contextlib
+import heapq
 import logging
 import os
+import re
 import sys
-
-import fuzzywuzzy.fuzz as fuzz
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,16 @@ def read_history(filename):
     return history
 
 
+def validate_history(history):
+    remove = []
+    for path in history:
+        if not os.path.exists(path):
+            remove.append(path)
+
+    for path in remove:
+        del history[path]
+
+
 def write_history(filename, history):
     data = sorted([(history[p], p) for p in history], reverse=True)
     with open(filename, 'w') as fp:
@@ -39,19 +49,25 @@ def write_history(filename, history):
 
 
 def rank_paths(history, test, limit=10):
-    def score(path):
-        token_score = max(fuzz.ratio(token, test) for token in path.split('/'))
-        total_score = fuzz.ratio(path, test)
-        freq_score = history[path]
-        return ((token_score, total_score, freq_score), path)
+    pattern = re.compile('(?=(' + '.*?'.join(re.escape(c) for c in test) + '))')
 
-    results = sorted([score(path) for path in history], reverse=True)
+    def score(match, path):
+        length = match.end(1) - match.start(1)
+        if length == 0:
+            return (0, 0)
 
-    if logger.getEffectiveLevel() <= logging.DEBUG:
-        for result in results:
-            logger.debug(result)
+        lscore = 1.0 / length
+        fscore = history[path]
+        return (lscore, fscore)
 
-    return [path for _, path in results[:limit]]
+    results = []
+    for path in history:
+        matches = [score(m, path) for m in pattern.finditer(path)]
+        if matches:
+            results.append((max(matches), path))
+            logger.debug('score {}: {}'.format(*results[-1]))
+
+    return [path for _, path in heapq.nlargest(limit, results)]
 
 
 def main(argv=sys.argv[1:]):
@@ -78,18 +94,16 @@ def main(argv=sys.argv[1:]):
         if os.path.isfile(args.file):
             os.remove(args.file)
 
+    elif args.refresh:
+        with open_history(args.file) as history:
+            validate_history(history)
+
     if args.add:
         with open_history(args.file) as history:
             for path in args.paths:
                 rpath = os.path.realpath(path)
                 if os.path.exists(rpath):
                     history[rpath] += 1
-
-    elif args.refresh:
-        with open_history(args.file) as history:
-            remove = [p for p in history if not os.path.exists(p)]
-            for path in remove:
-                del history[path]
 
     elif args.match:
         with open_history(args.file) as history:

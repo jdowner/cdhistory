@@ -12,7 +12,7 @@ things,
 
     function cd(){
       if [[ ${1:0:1} = ":" ]]; then
-        builtin cd $(cdhistory -n 1 -m ${1:1})
+        builtin cd $(cdhistory -r -n 1 -m ${1:1})
       else
         cdhistory -a $1
         builtin cd $1
@@ -28,3 +28,6 @@ with a colon it will go to the best match using cdhistory, e.g.
 
 will 'cd' to the path that best matches the string 'repos'. In effect, this is
 like creating aliases for commonly visited directories.
+
+This bash snippet above is available in the 'alias.bash' file. Just append it to
+your .bashrc or .bash_profile to make it available in your terminal.

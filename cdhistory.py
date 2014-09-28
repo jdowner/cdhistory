@@ -31,6 +31,16 @@ def read_history(filename):
     return history
 
 
+def validate_history(history):
+    remove = []
+    for path in history:
+        if not os.path.exists(path):
+            remove.append(path)
+
+    for path in remove:
+        del history[path]
+
+
 def write_history(filename, history):
     data = sorted([(history[p], p) for p in history], reverse=True)
     with open(filename, 'w') as fp:

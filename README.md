@@ -28,8 +28,3 @@ with a colon it will go to the best match using cdhistory, e.g.
 
 will 'cd' to the path that best matches the string 'repos'. In effect, this is
 like creating aliases for commonly visited directories.
-
-
-## DEPENDENCIES
-
-- fuzzywuzzy (https://github.com/seatgeek/fuzzywuzzy)

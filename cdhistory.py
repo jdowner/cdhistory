@@ -94,18 +94,16 @@ def main(argv=sys.argv[1:]):
         if os.path.isfile(args.file):
             os.remove(args.file)
 
+    elif args.refresh:
+        with open_history(args.file) as history:
+            validate_history(history)
+
     if args.add:
         with open_history(args.file) as history:
             for path in args.paths:
                 rpath = os.path.realpath(path)
                 if os.path.exists(rpath):
                     history[rpath] += 1
-
-    elif args.refresh:
-        with open_history(args.file) as history:
-            remove = [p for p in history if not os.path.exists(p)]
-            for path in remove:
-                del history[path]
 
     elif args.match:
         with open_history(args.file) as history:

@@ -62,10 +62,10 @@ def rank_paths(history, test, limit=10):
 
     results = []
     for path in history:
-        for match in pattern.finditer(path):
-            value = score(match, path)
-            results.append((value, path))
-            logger.debug((value, path))
+        matches = [score(m, path) for m in pattern.finditer(path)]
+        if matches:
+            results.append((max(matches), path))
+            logger.debug('score {}: {}'.format(*results[-1]))
 
     return [path for _, path in heapq.nlargest(limit, results)]
 

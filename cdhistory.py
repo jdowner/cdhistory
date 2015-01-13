@@ -45,7 +45,7 @@ def write_history(filename, history):
     data = sorted([(history[p], p) for p in history], reverse=True)
     with open(filename, 'w') as fp:
         for count, path in data:
-            fp.write('%d %s\n' % (count, path))
+            fp.write('%d %s\n' % (count, path.strip()))
 
 
 def rank_paths(history, test, limit=10):
@@ -109,7 +109,7 @@ def main(argv=sys.argv[1:]):
         with open_history(args.file) as history:
             path = args.paths[0] if args.paths else os.getcwd()
             for result in rank_paths(history, path, limit=args.max_results):
-                print(result)
+                print(result.strip())
 
     elif args.list:
         history = read_history(args.file)

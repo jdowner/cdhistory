@@ -25,7 +25,7 @@ def read_history(filename):
         with open(filename) as fp:
             for line in fp:
                 if line:
-                    count, path = line.split()
+                    count, path = line.split(None, 1)
                     history[path] = int(count)
 
     return history

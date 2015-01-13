@@ -24,9 +24,12 @@ def read_history(filename):
     if os.path.exists(filename):
         with open(filename) as fp:
             for line in fp:
-                if line:
-                    count, path = line.split(None, 1)
+                try:
+                    count, path = line.strip().split(None, 1)
                     history[path] = int(count)
+                    logger.debug('{} {}'.format(count, path))
+                except Exception:
+                    pass
 
     return history
 
@@ -65,9 +68,17 @@ def rank_paths(history, test, limit=10):
         matches = [score(m, path) for m in pattern.finditer(path)]
         if matches:
             results.append((max(matches), path))
-            logger.debug('score {}: {}'.format(*results[-1]))
 
-    return [path for _, path in heapq.nlargest(limit, results)]
+    candidates = [path for _, path in heapq.nlargest(limit, results)]
+
+    if candidates:
+        logger.debug('candidates for "{}":'.format(test))
+        for candidate in candidates:
+            logger.debug('-- {}'.format(candidate))
+    else:
+        logger.debug('no matches for "{}"'.format(test))
+
+    return candidates
 
 
 def main(argv=sys.argv[1:]):
@@ -108,8 +119,12 @@ def main(argv=sys.argv[1:]):
     elif args.match:
         with open_history(args.file) as history:
             path = args.paths[0] if args.paths else os.getcwd()
-            for result in rank_paths(history, path, limit=args.max_results):
-                print(result.strip())
+            ranked = rank_paths(history, path, limit=args.max_results)
+            if ranked:
+                for result in ranked:
+                    print(result.strip())
+            else:
+                print(os.getcwd())
 
     elif args.list:
         history = read_history(args.file)

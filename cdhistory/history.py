@@ -91,7 +91,8 @@ class History(object):
             a list of paths
 
         """
-        pattern = re.compile('(?=(' + '.*?'.join(re.escape(c) for c in test) + '))')
+        test = '.*?'.join(re.escape(c) for c in test)
+        pattern = re.compile('(?=(' + test + '))')
 
         # Define a scoring function
         def score(match, path):
@@ -132,11 +133,11 @@ class History(object):
         with open(filename, 'r') as fp:
             for line in fp:
                 try:
-                    count, path  = line.strip().split(None, 1)
+                    count, path = line.strip().split(None, 1)
 
                     # Filter out any  paths that do not exist anymore (these
-                    # should not be in the history object for performing matches
-                    # on).
+                    # should not be in the history object for performing
+                    # matches on).
                     if os.path.exists(path):
                         paths[path] = int(count)
                         logger.debug('{} {}'.format(count, path))

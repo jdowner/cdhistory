@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-FILES=cdhistory/cdhistory.py
+FILES=bin/cdhistory cdhistory/history.py
 PYTHON=/usr/bin/env python
 
 build:

@@ -26,7 +26,6 @@ setuptools.setup(
         ],
         scripts=['bin/cdhistory'],
         install_requires=[
-            'docopt',
             'pep8',
             'tox',
             ],

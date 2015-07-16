@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+import os
+import sys
+
+import cdhistory
+
+
+logger = logging.getLogger('cdhistory')
+
+
+def main(argv=sys.argv[1:]):
+    logging.basicConfig(format='%(asctime)-15s %(message)s')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a', '--add', action='store_true')
+    parser.add_argument('-l', '--list', action='store_true')
+    parser.add_argument('-r', '--refresh', action='store_true')
+    parser.add_argument('-m', '--match', action='store_true')
+    parser.add_argument('-n', '--max-results', type=int, default=10)
+    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-f', '--file',
+            default=os.path.realpath(os.path.expanduser('~/.cdhistory')))
+    parser.add_argument('paths', nargs=argparse.REMAINDER)
+
+    args = parser.parse_args(argv)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+
+    if args.refresh:
+        with cdhistory.history(args.file) as history:
+            history.validate()
+
+    if args.add:
+        with cdhistory.history(args.file) as history:
+            for path in args.paths:
+                try:
+                    history.add_path(path)
+                except Exception as e:
+                    print(str(e))
+
+
+    elif args.match:
+        with cdhistory.history(args.file) as history:
+            path = args.paths[0] if args.paths else os.getcwd()
+            ranked = history.matches(path, limit=args.max_results)
+            if ranked:
+                for result in ranked:
+                    print(result.strip())
+            else:
+                print(os.getcwd())
+
+    elif args.list:
+        with cdhistory.history(args.file) as history:
+            for path in sorted(history.paths.keys()):
+                print(path)
+
+
+if __name__ == "__main__":
+    main()

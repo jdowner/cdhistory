@@ -1,5 +1,8 @@
 ## CDHISTORY
 
+[![Build Status](https://travis-ci.org/jdowner/cdhistory.svg)](https://travis-ci.org/jdowner/cdhistory)
+
+
 This script is used to record the frequency of visits to particular directories
 through using the 'cd' function. The goal is to use this information to provide
 a way to quickly navigate to commonly visited directories.

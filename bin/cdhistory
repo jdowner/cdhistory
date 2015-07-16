@@ -42,7 +42,6 @@ def main(argv=sys.argv[1:]):
                 except Exception as e:
                     print(str(e))
 
-
     elif args.match:
         with cdhistory.history(args.file) as history:
             path = args.paths[0] if args.paths else os.getcwd()

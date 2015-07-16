@@ -24,6 +24,7 @@ setuptools.setup(
               'share/cdhistory.bash',
               ]),
         ],
+        scripts=['bin/cdhistory'],
         install_requires=[
             'docopt',
             'pep8',

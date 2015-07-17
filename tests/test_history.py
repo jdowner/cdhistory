@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import unittest
 
@@ -24,3 +25,7 @@ class TestHistory(unittest.TestCase):
         results = history.matches("ara", limit=1)
         self.assertEqual(1, len(results))
         self.assertEqual("ara", results[0])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -15,7 +15,7 @@ setuptools.setup(
         keywords='cd directory history alias search ',
         packages=['cdhistory'],
         package_data={
-          '': ['share/*', '*.rst', 'LICENSE'],
+          '': ['share/*', '*.md', 'LICENSE'],
         },
         data_files=[
           ('share/cdhistory/', [
